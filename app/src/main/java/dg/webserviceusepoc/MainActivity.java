@@ -24,8 +24,8 @@ public class MainActivity extends ActionBarActivity {
     EditText celcius;
     String getCel;
    // SoapPrimitive resultString;
-   // SoapObject resultString;
-    String resultString = "";
+    SoapObject resultString;
+    //String resultString = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,8 +95,15 @@ public class MainActivity extends ActionBarActivity {
 
             transport.call(SOAP_ACTION, soapEnvelope);
            // resultString = (SoapPrimitive) soapEnvelope.getResponse();
-            resultString = soapEnvelope.getResponse().toString();
-            Log.i(TAG, "Result Celsius: " + resultString.toString());
+           // resultString = (SoapObject) soapEnvelope.bodyIn;
+
+            resultString = (SoapObject) soapEnvelope.bodyIn;
+           // SoapObject resultOne = (SoapObject)resultString.getProperty("BarcodeStatusResult");
+
+            Log.i(TAG, "Result Celsius ResultString: " + resultString.getProperty("BarcodeStatusResult"));
+
+//            SoapObject s2 = (SoapObject) resultString.getProperty(0);
+//            Log.d(TAG,"Answer second : " + s2.toString());
         } catch (Exception ex) {
             Log.e(TAG, "Error: " + ex.getMessage());
         }
