@@ -27,8 +27,6 @@ public class MainActivity extends ActionBarActivity {
     EditText celcius;
     String getCel;
     SoapPrimitive resultString;
-   // SoapObject resultString;
-    //String resultString = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,15 +79,6 @@ public class MainActivity extends ActionBarActivity {
             int abc = 4444;
             SoapObject Request = new SoapObject(NAMESPACE, METHOD_NAME);
             Request.addProperty("barcode", Integer.parseInt(getCel));
-            //Request.addProperty("CountryName", abc);
-
-//            PropertyInfo pi4 = new PropertyInfo();
-//            pi4.setName("ElementName");
-//            pi4.setValue("Gold");// get the string that is to be sent to the webservice
-//            pi4.setType(String.class);
-//            Request.addProperty(pi4);
-
-
             SoapSerializationEnvelope soapEnvelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
             soapEnvelope.dotNet = true;
             soapEnvelope.setOutputSoapObject(Request);
@@ -98,18 +87,26 @@ public class MainActivity extends ActionBarActivity {
 
             transport.call(SOAP_ACTION, soapEnvelope);
             resultString = (SoapPrimitive) soapEnvelope.getResponse();
-           // resultString = (SoapObject) soapEnvelope.bodyIn;
-            String ss = resultString.toString();
-            final Pattern pattern = Pattern.compile("<Acknowledgement>(.+?)</Acknowledgement>");
-            final Matcher matcher = pattern.matcher(ss);
-            matcher.find();
-            System.out.println("Response from syso  " +matcher.group(1));
-          //  resultString = (SoapObject) soapEnvelope.bodyIn;
-           // SoapObject resultOne = (SoapObject)resultString.getProperty("BarcodeStatusResult");
-            Log.i(TAG, "Result Celsius ResultString: " + resultString);
-
-//            SoapObject s2 = (SoapObject) resultString.getProperty(0);
-//            Log.d(TAG,"Answer second : " + s2.toString());
+            String response = resultString.toString();
+            final Pattern acknowledgementPattern = Pattern.compile("<Acknowledgement>(.+?)</Acknowledgement>");
+            final Pattern countAckPattern = Pattern.compile("<Acknowledgement>(.+?)</Acknowledgement>");
+            final Matcher acknowledgementMatcher = acknowledgementPattern.matcher(response);
+            final Matcher countAckMatcher = acknowledgementPattern.matcher(response);
+            acknowledgementMatcher.find();
+            countAckMatcher.find();
+            Log.i(TAG, "Response caught : " + response);
+            System.out.println("Acknowledgement Token  " +acknowledgementMatcher.group(1));
+            System.out.println("CountAck Token  " +countAckMatcher.group(1));
+            if(acknowledgementMatcher.group(1) == "True" && countAckMatcher.group(1) == "True")
+            {
+                Log.d(TAG,"Valid User... User not checked in yet");
+            }else if(acknowledgementMatcher.group(1) == "True" && countAckMatcher.group(1) == "False")
+            {
+                Log.d(TAG,"Valid User... User has checked in already");
+            }else
+            {
+                Log.d(TAG,"Invalid User !!!");
+            }
         } catch (Exception ex) {
             Log.e(TAG, "Error: " + ex.getMessage());
         }
