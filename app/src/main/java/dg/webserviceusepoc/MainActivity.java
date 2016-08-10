@@ -16,6 +16,9 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -23,8 +26,8 @@ public class MainActivity extends ActionBarActivity {
     Button bt;
     EditText celcius;
     String getCel;
-   // SoapPrimitive resultString;
-    SoapObject resultString;
+    SoapPrimitive resultString;
+   // SoapObject resultString;
     //String resultString = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,13 +97,16 @@ public class MainActivity extends ActionBarActivity {
             HttpTransportSE transport = new HttpTransportSE(URL);
 
             transport.call(SOAP_ACTION, soapEnvelope);
-           // resultString = (SoapPrimitive) soapEnvelope.getResponse();
+            resultString = (SoapPrimitive) soapEnvelope.getResponse();
            // resultString = (SoapObject) soapEnvelope.bodyIn;
-
-            resultString = (SoapObject) soapEnvelope.bodyIn;
+            String ss = resultString.toString();
+            final Pattern pattern = Pattern.compile("<Acknowledgement>(.+?)</Acknowledgement>");
+            final Matcher matcher = pattern.matcher(ss);
+            matcher.find();
+            System.out.println("Response from syso  " +matcher.group(1));
+          //  resultString = (SoapObject) soapEnvelope.bodyIn;
            // SoapObject resultOne = (SoapObject)resultString.getProperty("BarcodeStatusResult");
-
-            Log.i(TAG, "Result Celsius ResultString: " + resultString.getProperty("BarcodeStatusResult"));
+            Log.i(TAG, "Result Celsius ResultString: " + resultString);
 
 //            SoapObject s2 = (SoapObject) resultString.getProperty(0);
 //            Log.d(TAG,"Answer second : " + s2.toString());
