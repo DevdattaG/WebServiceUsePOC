@@ -26,6 +26,7 @@ public class MainActivity extends ActionBarActivity {
     Button bt;
     EditText celcius;
     String getCel;
+    String code = "";
     SoapPrimitive resultString;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +35,7 @@ public class MainActivity extends ActionBarActivity {
 
         bt = (Button) findViewById(R.id.bt);
         celcius = (EditText) findViewById(R.id.cel);
-
+        code = "236111082677";
 
         bt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,9 +77,9 @@ public class MainActivity extends ActionBarActivity {
         String URL = "http://54.149.90.101/KzWebservice/barcodescanner.asmx";
 
         try {
-            int abc = 4444;
+           // int abc = 4444;
             SoapObject Request = new SoapObject(NAMESPACE, METHOD_NAME);
-            Request.addProperty("barcode", Integer.parseInt(getCel));
+            Request.addProperty("barcode", code);
             SoapSerializationEnvelope soapEnvelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
             soapEnvelope.dotNet = true;
             soapEnvelope.setOutputSoapObject(Request);
