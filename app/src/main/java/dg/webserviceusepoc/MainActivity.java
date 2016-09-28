@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -80,7 +81,7 @@ public class MainActivity extends ActionBarActivity {
     public void calculate() {
 
 
-        String url = "https://demo0600962.mockable.io/helloRestPostPOC";
+        String url = "http://54.149.90.101/kzapi/GetSectionList";
 
 // Request a string response
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -93,6 +94,7 @@ public class MainActivity extends ActionBarActivity {
                         Log.d(TAG, response);
 
                     }
+
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -103,7 +105,17 @@ public class MainActivity extends ActionBarActivity {
                 error.printStackTrace();
 
             }
-        });
+
+        }
+        ){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Basic-Authorization", "AppUser:5222c123-936e-4d20-86d3-11354093bfdd");
+                return headers;
+            }
+        };
 
 // Add the request to the queue
         Volley.newRequestQueue(this).add(stringRequest);
