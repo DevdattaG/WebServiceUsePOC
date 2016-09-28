@@ -79,20 +79,10 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void calculate() {
-
-
-<<<<<<< HEAD
         String url = "http://54.149.90.101/kzapi/GetSectionList";
-
-=======
-        String url = "http://54.149.90.101/kzapi/GetEventDetail";
-        String a = "";
-//        JSONObject jsonBody = new JSONObject();
-//        jsonBody.put("EventCatId",1903);
->>>>>>> f56ffce1118bcf794c615551d94454bbb487cbfe
 // Request a string response
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -114,7 +104,7 @@ public class MainActivity extends ActionBarActivity {
                 error.printStackTrace();
 
             }
-<<<<<<< HEAD
+
         }){
 
             @Override
@@ -125,34 +115,7 @@ public class MainActivity extends ActionBarActivity {
 
                 return params;
             }
-=======
 
-
-        }
-        ){
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Content-Type", "application/json;  charset=utf-8");
-                headers.put("Basic-Authorization", "AppUser:5222c123-936e-4d20-86d3-11354093bfdd");
-                return headers;
-            }
-//            @Override
-//            protected Map<String, String> getParams()
-//            {
-//                Map<String, String>  params = new HashMap<>();
-//                // the POST parameters:
-//                params.put("EventCatId", "1903");
-//                return params;
-//            }
-
-            @Override
-            public byte[] getBody() throws AuthFailureError {
-                String value = "1903";
-                String str = "{\"StringRequest\":\""+value+"\"}";
-                return str.getBytes();
-            };
->>>>>>> f56ffce1118bcf794c615551d94454bbb487cbfe
         };
 
 // Add the request to the queue
