@@ -79,19 +79,20 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void calculate() {
-        String url = "http://54.149.90.101/kzapi/GetEventDetail";
+        String url = "http://54.149.90.101/kzapi/GetSubEvent";
+        final JSONObject body = new JSONObject();
+        try {
+            body.put("EventCatId",1903);
 
-// Request a string response
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(),
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url, body,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
-                        // Result handling
-                       // System.out.println(response);
                         Log.d(TAG, response.toString());
-
                     }
 
                 }, new Response.ErrorListener() {
@@ -117,41 +118,9 @@ public class MainActivity extends ActionBarActivity {
                 return params;
             }
 
-            @Override
-            protected Map<String,String> getParams(){
-                Map<String,String> params = new HashMap<String, String>();
-                params.put("EventCatId","1903");
-                return params;
-            }
-
-
         };
 
-// Add the request to the queue
         Volley.newRequestQueue(this).add(stringRequest);
 
-
-//            final Pattern acknowledgementPattern = Pattern.compile("<Acknowledgement>(.+?)</Acknowledgement>");
-//            final Pattern countAckPattern = Pattern.compile("<Acknowledgement>(.+?)</Acknowledgement>");
-//            final Matcher acknowledgementMatcher = acknowledgementPattern.matcher(response);
-//            final Matcher countAckMatcher = acknowledgementPattern.matcher(response);
-//            acknowledgementMatcher.find();
-//            countAckMatcher.find();
-//            Log.i(TAG, "Response caught : " + response);
-//            System.out.println("Acknowledgement Token  " +acknowledgementMatcher.group(1));
-//            System.out.println("CountAck Token  " +countAckMatcher.group(1));
-//            if(acknowledgementMatcher.group(1) == "True" && countAckMatcher.group(1) == "True")
-//            {
-//                Log.d(TAG,"Valid User... User not checked in yet");
-//            }else if(acknowledgementMatcher.group(1) == "True" && countAckMatcher.group(1) == "False")
-//            {
-//                Log.d(TAG,"Valid User... User has checked in already");
-//            }else
-//            {
-//                Log.d(TAG,"Invalid User !!!");
-//            }
-//        } catch (Exception ex) {
-//            Log.e(TAG, "Error: " + ex.getMessage());
-//        }
     }
 }
