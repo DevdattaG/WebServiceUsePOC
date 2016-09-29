@@ -79,17 +79,18 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void calculate() {
-        String url = "http://54.149.90.101/kzapi/GetSectionList";
+        String url = "http://54.149.90.101/kzapi/GetEventDetail";
+
 // Request a string response
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(),
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String response) {
+                    public void onResponse(JSONObject response) {
 
                         // Result handling
-                        System.out.println(response);
-                        Log.d(TAG, response);
+                       // System.out.println(response);
+                        Log.d(TAG, response.toString());
 
                     }
 
@@ -110,11 +111,19 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("Content-Type", "application/json");
+             //   params.put("Content-Type", "application/json");
                 params.put("Basic-Authorization", "AppUser:5222c123-936e-4d20-86d3-11354093bfdd");
 
                 return params;
             }
+
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("EventCatId","1903");
+                return params;
+            }
+
 
         };
 
