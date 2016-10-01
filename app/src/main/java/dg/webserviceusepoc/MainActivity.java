@@ -79,20 +79,21 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void calculate() {
-        String url = "http://54.149.90.101/kzapi/GetSubEvent";
+        String url = "http://192.168.2.11:80/PassT_WebService/api/Scan/CheckIsQRCodeValid";
         final JSONObject body = new JSONObject();
         try {
-            body.put("EventCatId",1903);
+            body.put("TransId",6);
+            body.put("TollPlazaId",2);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url, body,
-                new Response.Listener<JSONObject>() {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d(TAG, response.toString());
+                    public void onResponse(String response) {
+                        Log.d(TAG, response);
                     }
 
                 }, new Response.ErrorListener() {
@@ -107,15 +108,25 @@ public class MainActivity extends ActionBarActivity {
 
             }
 
+
         }){
 
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
-             //   params.put("Content-Type", "application/json");
+              //  params.put("Content-Type", "application/json");
                 params.put("Basic-Authorization", "AppUser:5222c123-936e-4d20-86d3-11354093bfdd");
 
                 return params;
+            }
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                return body.toString().getBytes();
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json";
             }
 
         };
