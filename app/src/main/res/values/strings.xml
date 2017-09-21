@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">WebServiceUsePOC</string>
+    <string name="spinner_title">AndroidSpinnerExample</string>
 </resources>
