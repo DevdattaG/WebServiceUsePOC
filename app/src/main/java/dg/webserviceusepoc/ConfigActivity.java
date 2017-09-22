@@ -1,5 +1,6 @@
 package dg.webserviceusepoc;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +20,12 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +36,7 @@ public class ConfigActivity extends AppCompatActivity implements AdapterView.OnI
     Spinner spinner;
     Spinner gateSpinner;
     String venueId = "";
+    String filename = "configFile";
     ArrayList<Venue> venueList = new ArrayList<Venue>();
     ArrayList<String> gateList = new ArrayList<String>();
     @Override
@@ -237,11 +245,58 @@ public class ConfigActivity extends AppCompatActivity implements AdapterView.OnI
         }
         else{
             Log.d("config",deviceId.getText().toString());
+            writeToConfigFile(deviceId.getText().toString() + "~" + gateSpinner.getSelectedItem().toString(), getApplicationContext() );
+            Toast.makeText(ConfigActivity.this, "Saved", Toast.LENGTH_SHORT).show();
+            readFromConfigFile(getApplicationContext());
 //            Intent validationPage = new Intent("android.intent.action.ValidationPage");
 //            validationPage.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 //            validationPage.putExtra("Code",deviceId.getText().toString());
 //            startActivity(validationPage);
         }
+    }
+
+    private void writeToConfigFile(String data, Context context)
+    {
+        FileOutputStream outputStream;
+        try {
+           // data +=",";
+            outputStream = openFileOutput(filename, MODE_PRIVATE);
+            outputStream.write(data.getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String readFromConfigFile(Context context) {
+
+        String ret = "";
+
+        try {
+            InputStream inputStream = context.openFileInput(filename);
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append(receiveString);
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+                Log.d("File read",ret);
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("login activity", "Can not read file: " + e.toString());
+        }
+
+        return ret;
     }
 
 }

@@ -68,13 +68,13 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View view) {
 
                 getCel = celcius.getText().toString();
-               // writeToFile(getCel,getApplicationContext());
+                writeToFile(getCel,getApplicationContext());
               //  getVenues();
                 AsyncCallWS task = new AsyncCallWS();
                 task.execute();
 
-                //readFromFile(getApplicationContext());
-                //getFileSize(getApplicationContext());
+                readFromFile(getApplicationContext());
+                getFileSize(getApplicationContext());
              //  deleteFile(getApplicationContext());
             }
         });
@@ -197,7 +197,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected Void doInBackground(Void... params) {
             Log.i(TAG, "doInBackground");
-            getVenues();
+           // getVenues();
             calculate();
             return null;
         }
