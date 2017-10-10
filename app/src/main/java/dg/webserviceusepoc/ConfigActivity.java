@@ -2,7 +2,10 @@ package dg.webserviceusepoc;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +24,7 @@ import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,9 +47,14 @@ public class ConfigActivity extends AppCompatActivity implements AdapterView.OnI
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config);
-
+        deleteFile(getApplicationContext());
         ConfigActivity.AsyncCallConfig task = new ConfigActivity.AsyncCallConfig();
         task.execute();
+    }
+
+
+    @Override
+    public void onBackPressed() {
     }
 
     @Override
@@ -113,7 +122,7 @@ public class ConfigActivity extends AppCompatActivity implements AdapterView.OnI
         String SOAP_ACTION = "http://tempuri.org/GetVenueDetails";
         String METHOD_NAME = "GetVenueDetails";
         String NAMESPACE = "http://tempuri.org/";
-        String URL = "http://54.149.90.101/KzWebservice1/barcodescanner.asmx";
+        String URL = "http://54.149.90.101/KzWebservice/barcodescanner.asmx";
 
         try {
             // int abc = 4444;
@@ -150,7 +159,7 @@ public class ConfigActivity extends AppCompatActivity implements AdapterView.OnI
         String SOAP_ACTION = "http://tempuri.org/GetGateInfo";
         String METHOD_NAME = "GetGateInfo";
         String NAMESPACE = "http://tempuri.org/";
-        String URL = "http://54.149.90.101/KzWebservice1/barcodescanner.asmx";
+        String URL = "http://54.149.90.101/KzWebservice/barcodescanner.asmx";
 
         try {
             // int abc = 4444;
@@ -233,20 +242,32 @@ public class ConfigActivity extends AppCompatActivity implements AdapterView.OnI
         {
             Log.d("config : ","Invalid");
             Toast.makeText(ConfigActivity.this, "Enter Device ID", Toast.LENGTH_SHORT).show();
+            View someView = findViewById(R.id.myLayout);
+            View root = someView.getRootView();
+            root.setBackgroundColor(Color.parseColor("#FF0000"));
         }else if(password.getText().toString().equals(""))
         {
             Log.d("config : ","Invalid");
             Toast.makeText(ConfigActivity.this, "Enter Password", Toast.LENGTH_SHORT).show();
+            View someView = findViewById(R.id.myLayout);
+            View root = someView.getRootView();
+            root.setBackgroundColor(Color.parseColor("#FF0000"));
         }
         else if(!password.getText().toString().equals("0000"))
         {
             Log.d("config : ","Invalid");
             Toast.makeText(ConfigActivity.this, "Invalid Password", Toast.LENGTH_SHORT).show();
+            View someView = findViewById(R.id.myLayout);
+            View root = someView.getRootView();
+            root.setBackgroundColor(Color.parseColor("#FF0000"));
         }
         else{
             Log.d("config",deviceId.getText().toString());
             writeToConfigFile(deviceId.getText().toString() + "~" + gateSpinner.getSelectedItem().toString(), getApplicationContext() );
             Toast.makeText(ConfigActivity.this, "Saved", Toast.LENGTH_SHORT).show();
+            View someView = findViewById(R.id.myLayout);
+            View root = someView.getRootView();
+            root.setBackgroundColor(Color.parseColor("#00FF00"));
             readFromConfigFile(getApplicationContext());
 //            Intent validationPage = new Intent("android.intent.action.ValidationPage");
 //            validationPage.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -266,6 +287,14 @@ public class ConfigActivity extends AppCompatActivity implements AdapterView.OnI
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean deleteFile(Context context)
+    {
+        File dir = getFilesDir();
+        File file = new File(dir, filename);
+        boolean deleted = file.delete();
+        return deleted;
     }
 
     private String readFromConfigFile(Context context) {
@@ -299,4 +328,71 @@ public class ConfigActivity extends AppCompatActivity implements AdapterView.OnI
         return ret;
     }
 
+    public void scanSendMail(View view)
+    {
+        ConfigActivity.AsyncSendMail taskMail = new ConfigActivity.AsyncSendMail();
+        taskMail.execute();
+    }
+
+
+    private class AsyncSendMail extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            Log.i("Pre", "onPreExecute");
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.i("Task", "doInBackground");
+            try {
+                GMailSender sender = new GMailSender("kyazoonga.scan@gmail.com","scan@kz@123");
+                sender.sendMail("Scan offline data",
+                        readFromMainFile(getApplicationContext()),
+                        "kyazoonga.scan@gmail.com",
+                        "devdatta.godbole777@gmail.com, gaurav.bhardwaj@kyazoonga.com, devdatta.godbole@kyazoonga.com");
+            } catch (Exception e) {
+                Log.e("SendMail", e.getMessage(), e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            Log.i("done", "onPostExecute");
+            Toast.makeText(getApplicationContext(), "Mail sent successfully", Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+    private String readFromMainFile(Context context) {
+
+        String ret = "";
+
+        try {
+            InputStream inputStream = context.openFileInput("myfile");
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append(receiveString);
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+                Log.d("File read",ret);
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("login activity", "Can not read file: " + e.toString());
+        }
+
+        return ret;
+    }
 }

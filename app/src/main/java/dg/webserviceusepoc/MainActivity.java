@@ -1,18 +1,23 @@
 package dg.webserviceusepoc;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import org.json.JSONArray;
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
@@ -45,21 +50,23 @@ public class MainActivity extends ActionBarActivity {
     String getCel;
     String code = "";
     SoapPrimitive resultString;
+    SoapPrimitive syncResultString;
     String filename = "myfile";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
         bt = (Button) findViewById(R.id.bt);
         nxt = (Button) findViewById(R.id.nxt);
         celcius = (EditText) findViewById(R.id.cel);
 
-//        for(long i = 2011347100; i<= 2011357100 ; i++)
+//        for(int i = 1000; i<= 9999  ; i++)
 //        {
 //            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //            String formattedDate = df.format(Calendar.getInstance().getTime());
-//            writeToFile(String.valueOf(i) + "~" + formattedDate, getApplicationContext());
+//            writeToFile("1808171" + String.valueOf(i) + "~" + formattedDate, getApplicationContext());
 //        }
 
        // code="0903644441";
@@ -68,14 +75,26 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View view) {
 
                 getCel = celcius.getText().toString();
-                writeToFile(getCel,getApplicationContext());
+          //      writeToFile(getCel,getApplicationContext());
               //  getVenues();
-                AsyncCallWS task = new AsyncCallWS();
-                task.execute();
+//                AsyncCallWS task = new AsyncCallWS();
+//                task.execute();
 
+                AsyncCallSyncConfig task = new AsyncCallSyncConfig();
+                task.execute();
                 readFromFile(getApplicationContext());
+                if(!isConfigFileEmpty())
+                {
+                    String a = readFromConfigFile(getApplicationContext());
+                    String a1 = a.split("~")[0];
+                    String a2= a.split("~")[1];
+                }else
+                {
+
+                }
+
                 getFileSize(getApplicationContext());
-             //  deleteFile(getApplicationContext());
+               //deleteFile(getApplicationContext());
             }
         });
 
@@ -88,6 +107,10 @@ public class MainActivity extends ActionBarActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
     }
 
     private boolean deleteFile(Context context)
@@ -151,30 +174,53 @@ public class MainActivity extends ActionBarActivity {
         return ret;
     }
 
+    public boolean isConfigFileEmpty(){
+        String a = readFromConfigFile(getApplicationContext());
+        if(a.equals(""))
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+    }
+
+    private String readFromConfigFile(Context context) {
+
+        String ret = "";
+
+        try {
+            InputStream inputStream = context.openFileInput("configFile");
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append(receiveString);
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+                Log.d("File read",ret);
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("login activity", "Can not read file: " + e.toString());
+        }
+
+        return ret;
+    }
+
     public void playMySound(String soundName){
         Uri uri=Uri.parse("android.resource://" + getPackageName() + "/" +
                 "raw" + "/" + soundName);
         MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
 
-
-//        switch (soundId)
-//        {
-//            case 1:
-//            {
-//                MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alreadyin);
-//                break;
-//            }
-//            case 2:
-//            {
-//                MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alreadyin);
-//                break;
-//            }
-//            case 3:
-//            {
-//                MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alreadyin);
-//                break;
-//            }
-//        }
 
         mediaPlayer.start();
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -231,18 +277,45 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-
-    public void getVenues()
+    public void showPasswordDialogue(View view)
     {
-        String SOAP_ACTION = "http://tempuri.org/GetVenueDetails";
-        String METHOD_NAME = "GetVenueDetails";
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter Password");
+
+// Set up the input
+        final EditText input = new EditText(this);
+// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+// Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String a  = input.getText().toString();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void syncOfflineCodes(){
+        String SOAP_ACTION = "http://tempuri.org/SyncOfflineBarcode";
+        String METHOD_NAME = "SyncOfflineBarcode";
         String NAMESPACE = "http://tempuri.org/";
         String URL = "http://54.149.90.101/KzWebservice1/barcodescanner.asmx";
 
         try {
-            // int abc = 4444;
+            Log.d("Start", "Start sync");
+            String syncInput = readFromFile(getApplicationContext());
             SoapObject Request = new SoapObject(NAMESPACE, METHOD_NAME);
-           // Request.addProperty("barcode", "29081990645");
+            Request.addProperty("strScanString", syncInput);
             SoapSerializationEnvelope soapEnvelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
             soapEnvelope.dotNet = true;
             soapEnvelope.setOutputSoapObject(Request);
@@ -251,17 +324,17 @@ public class MainActivity extends ActionBarActivity {
 
             transport.call(SOAP_ACTION, soapEnvelope);
             //resultString = (SoapPrimitive) soapEnvelope.getResponse();
-            resultString = (SoapPrimitive) soapEnvelope.getResponse();
-            String response = resultString.toString();
-
-
-            JSONArray arr = new JSONArray(response);
-            List<Venue> list = new ArrayList<Venue>();
-            for(int i = 0; i < arr.length(); i++){
-                list.add(new Venue(arr.getJSONObject(i).getString("VenueId"),arr.getJSONObject(i).getString("Venue")));
+            syncResultString = (SoapPrimitive) soapEnvelope.getResponse();
+            String response = syncResultString.toString();
+            if(response.equals("Success"))
+            {
+                deleteFile(getApplicationContext());
+            }else
+            {
+                Log.d("Sync","unsuccessful");
             }
-
             Log.d("result" , response);
+            Log.d("End", "End sync");
 
 
         } catch (Exception ex) {
@@ -317,4 +390,25 @@ public class MainActivity extends ActionBarActivity {
             Log.e(TAG, "Error: " + ex.getMessage());
         }
     }
+
+    private class AsyncCallSyncConfig extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            Log.i("Pre", "onPreExecute");
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.i("Task", "doInBackground");
+           // syncOfflineCodes();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            Log.i("done", "onPostExecute");
+        }
+    }
+
 }
