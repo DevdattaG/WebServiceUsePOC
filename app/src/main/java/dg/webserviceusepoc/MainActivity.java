@@ -109,6 +109,14 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
+    private void logUser() {
+        // TODO: Use the current user's information
+        // You can call any combination of these three methods
+        Crashlytics.setUserIdentifier("12345");
+        Crashlytics.setUserEmail("devdatta.godbole777@gmail.com");
+        Crashlytics.setUserName("Test User");
+    }
+
     @Override
     public void onBackPressed() {
     }
